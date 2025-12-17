@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="lab-06-04_6045 [file:/C:/Users/1/Desktop/ByhanovMS11/lab-06/lab-06-04/]" external.linked.project.path="$MODULE_DIR$/../../.." external.root.project.path="$MODULE_DIR$/../../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
+  <component name="DisplayModuleName">
+    <option name="name" value="lab-06-04_6045" />
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_21" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../..">
+      <excludeFolder url="file://$MODULE_DIR$/../../../target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="lab-06-04_6045.main" />
+    <orderEntry type="module" module-name="lab-06-04_6045.test" production-on-test="" />
+    <orderEntry type="library" name="scala-sdk-2.13.19" level="application" />
+  </component>
+</module>
