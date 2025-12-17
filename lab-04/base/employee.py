@@ -1,15 +1,16 @@
 class Employee:
     """
-    Класс сотрудника, описывающий сущность предметной области.
-    Содержит приватные данные и методы доступа к ним.
+    Базовый класс-сущность.
+    Отвечает ТОЛЬКО за хранение данных и их валидацию.
+    Не содержит абстрактных методов.
     """
     def __init__(self, emp_id: int, name: str, department: str, base_salary: float):
-        self.id = emp_id            # Использует сеттер для валидации
-        self.name = name            # Использует сеттер для валидации
+        self.id = emp_id
+        self.name = name
         self.department = department
         self.base_salary = base_salary
 
-    # --- ID (Геттер и Сеттер) ---
+    # --- Properties (Getters & Setters) ---
     @property
     def id(self) -> int:
         return self.__id
@@ -20,7 +21,6 @@ class Employee:
             raise ValueError(f"ID должен быть положительным целым числом. Получено: {value}")
         self.__id = value
 
-    # --- Name (Геттер и Сеттер) ---
     @property
     def name(self) -> str:
         return self.__name
@@ -31,7 +31,6 @@ class Employee:
             raise ValueError("Имя сотрудника не может быть пустой строкой.")
         self.__name = value.strip()
 
-    # --- Department (Геттер и Сеттер) ---
     @property
     def department(self) -> str:
         return self.__department
@@ -42,7 +41,6 @@ class Employee:
             raise ValueError("Название отдела должно быть строкой.")
         self.__department = value.strip()
 
-    # --- Base Salary (Геттер и Сеттер) ---
     @property
     def base_salary(self) -> float:
         return self.__base_salary
@@ -54,5 +52,4 @@ class Employee:
         self.__base_salary = float(value)
 
     def __str__(self):
-        return (f"Сотрудник [id: {self.__id}, имя: {self.__name}, "
-                f"отдел: {self.__department}, зарплата: {self.__base_salary}]")
+        return f"Сотрудник [id: {self.id}, имя: {self.name}, отдел: {self.department}]"
