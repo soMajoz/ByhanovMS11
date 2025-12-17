@@ -1,0 +1,50 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+abstract class AbstractEmployee {
+    - __id : int
+    - __name : string
+    - __department : string
+    - __base_salary : float
+    + {abstract} calculate_salary() : float
+    + {abstract} get_info() : string
+}
+
+class Employee {
+    + calculate_salary() : float
+    + get_info() : string
+}
+
+class Manager {
+    - __bonus : float
+    + calculate_salary() : float
+    + get_info() : string
+}
+
+class Developer {
+    - __tech_stack : list
+    - __seniority_level : string
+    + add_skill(skill: string)
+    + calculate_salary() : float
+    + get_info() : string
+}
+
+class Salesperson {
+    - __commission_rate : float
+    - __sales_volume : float
+    + update_sales(amount: float)
+    + calculate_salary() : float
+    + get_info() : string
+}
+
+class EmployeeFactory {
+    + {static} create_employee(type: string, **kwargs) : AbstractEmployee
+}
+
+AbstractEmployee <|-- Employee
+Employee <|-- Manager
+Employee <|-- Developer
+Employee <|-- Salesperson
+EmployeeFactory ..> AbstractEmployee : creates >
+
+@enduml

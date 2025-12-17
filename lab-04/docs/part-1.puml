@@ -1,0 +1,30 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' Описание класса Сотрудник
+class Employee {
+    - __id : int
+    - __name : string
+    - __department : string
+    - __base_salary : float
+    
+    + __init__(...)
+    + id : int <<property>>
+    + name : string <<property>>
+    + department : string <<property>>
+    + base_salary : float <<property>>
+    + __str__() : string
+}
+
+' Описание Главного класса
+class Main {
+    + {static} run_tests()
+    + {static} test_valid_creation()
+    + {static} test_updates()
+    + {static} test_validation_errors()
+}
+
+' Связь: Main использует Employee
+Main ..> Employee : uses >
+
+@enduml
