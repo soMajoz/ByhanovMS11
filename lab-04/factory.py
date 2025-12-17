@@ -6,28 +6,41 @@ from specialists.salesperson import Salesperson
 
 class EmployeeFactory:
     """
-    Фабрика для создания объектов сотрудников.
-    Инкапсулирует логику выбора конкретного класса на основе строки типа.
+    Реализация паттерна проектирования "Фабричный метод" (Factory Method).
+    
+    Этот класс инкапсулирует сложную логику создания объектов сотрудников.
+    Клиентский код (например, класс Company при загрузке из JSON) не должен знать,
+    какой конкретно класс инстанцировать — он передает только тип сотрудника и параметры.
     """
 
     @staticmethod
     def create_employee(emp_type: str, **kwargs) -> AbstractEmployee:
         """
-        Создает сотрудника заданного типа.
-        
-        :param emp_type: Тип ('manager', 'developer', 'salesperson', 'employee')
-        :param kwargs: Аргументы конструктора (id, name, department, base_salary, ...)
+        Универсальный метод создания сотрудника.
+
+        :param emp_type: Строковый идентификатор типа ('manager', 'developer'...).
+        :param kwargs: Словарь именованных аргументов. Должен содержать:
+                       - Общие поля: id, name, department, base_salary
+                       - Специфичные поля: bonus, seniority, tech_stack и др.
+        :return: Экземпляр наследника AbstractEmployee.
+        :raises ValueError: Если передан неизвестный тип или отсутствуют обязательные данные.
         """
         emp_type = emp_type.lower().strip()
         
-        # Базовая валидация обязательных полей
-        required_fields = ['id', 'name', 'department', 'base_salary']
-        for field in required_fields:
+        # -----------------------------------------------------------------
+        # 1. Валидация общих данных
+        # -----------------------------------------------------------------
+        # Перед созданием любого сотрудника мы обязаны убедиться, 
+        # что базовые атрибуты присутствуют в аргументах.
+        required_base_fields = ['id', 'name', 'department', 'base_salary']
+        for field in required_base_fields:
             if field not in kwargs:
-                # В to_dict ключи могут быть строками, поэтому kwargs['id'] корректно
-                # Но если вызываем руками, нужно следить за названиями
-                raise ValueError(f"Отсутствует обязательное поле для создания сотрудника: {field}")
+                raise ValueError(
+                    f"Ошибка Фабрики: Отсутствует обязательное поле '{field}' "
+                    f"для создания сотрудника типа '{emp_type}'."
+                )
 
+        # Формируем словарь базовых аргументов для распаковки в конструктор
         base_args = {
             'emp_id': kwargs['id'], 
             'name': kwargs['name'], 
@@ -35,25 +48,39 @@ class EmployeeFactory:
             'base_salary': kwargs['base_salary']
         }
 
+        # -----------------------------------------------------------------
+        # 2. Инстанцирование конкретных классов
+        # -----------------------------------------------------------------
+        
         if emp_type == 'employee':
+            # Обычный сотрудник не требует дополнительных полей
             return OrdinaryEmployee(**base_args)
         
         elif emp_type == 'manager':
-            # Ожидаем 'bonus' в kwargs
-            return Manager(**base_args, bonus=kwargs.get('bonus', 0.0))
+            # Для менеджера ищем 'bonus', если нет — ставим 0.0 по умолчанию
+            return Manager(
+                **base_args, 
+                bonus=kwargs.get('bonus', 0.0)
+            )
         
         elif emp_type == 'developer':
-            # Ожидаем 'seniority' и 'tech_stack'
-            # При загрузке из JSON ключи будут совпадать с этими именами
-            return Developer(**base_args, 
-                             seniority_level=kwargs.get('seniority', 'junior'),
-                             tech_stack=kwargs.get('tech_stack', []))
+            # Разработчик требует уровень и стек технологий.
+            # Обратите внимание: при загрузке из JSON ключи словаря kwargs 
+            # совпадают с именами аргументов конструктора Developer.
+            return Developer(
+                **base_args, 
+                seniority_level=kwargs.get('seniority', 'junior'),
+                tech_stack=kwargs.get('tech_stack', [])
+            )
         
         elif emp_type == 'salesperson':
-            # Ожидаем 'commission' и 'sales_volume'
-            return Salesperson(**base_args, 
-                               commission_rate=kwargs.get('commission', 0.0),
-                               sales_volume=kwargs.get('sales_volume', 0.0))
+            # Продавец требует комиссию и объем продаж.
+            return Salesperson(
+                **base_args, 
+                commission_rate=kwargs.get('commission', 0.0),
+                sales_volume=kwargs.get('sales_volume', 0.0)
+            )
         
         else:
-            raise ValueError(f"Неизвестный тип сотрудника: {emp_type}")
+            # Если тип не найден в реестре — выбрасываем исключение
+            raise ValueError(f"Фабрика не знает, как создать сотрудника типа: '{emp_type}'")

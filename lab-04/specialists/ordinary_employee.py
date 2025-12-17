@@ -5,8 +5,9 @@ class OrdinaryEmployee(AbstractEmployee):
         return self.base_salary
 
     def get_info(self) -> str:
-        return f"{super().__str__()} -> Тип: Штатный -> Итого: {self.calculate_salary()}"
+        return f"{super().__str__()} -> Тип: Штатный -> Итого: {self.calculate_salary()} руб."
 
+    # --- ВАЖНО: Реализация абстрактного метода ---
     def to_dict(self) -> dict:
         return {
             "type": "employee",

@@ -1,7 +1,15 @@
 from base.employee import Employee
 
 class TestPart1:
-    """Тестовый набор для Части 1: Инкапсуляция и валидация."""
+    """
+    ТЕСТОВЫЙ НАБОР ЧАСТИ 1: ИНКАПСУЛЯЦИЯ И ВАЛИДАЦИЯ
+    
+    Цель: Проверить корректность реализации базового класса Employee.
+    Основные аспекты проверки:
+    1. Приватность атрибутов (доступ только через свойства).
+    2. Корректность работы геттеров и сеттеров.
+    3. Механизм валидации данных (выброс исключений при некорректном вводе).
+    """
 
     @staticmethod
     def run():
@@ -12,47 +20,51 @@ class TestPart1:
 
     @staticmethod
     def test_valid_creation():
-        print("   [1.1] Тест создания и обновления...")
+        """Проверяет успешное создание объекта и обновление полей валидными данными."""
+        print("   [1.1] Тест создания и обновления (Happy Path)...")
         try:
             emp = Employee(1, "Тест Юзер", "QA", 50000)
-            # Проверка геттеров
+            
+            # Проверка чтения данных (Getter)
             assert emp.name == "Тест Юзер"
             assert emp.base_salary == 50000
             
-            # Проверка сеттеров
+            # Проверка изменения данных (Setter)
             emp.base_salary = 60000
             assert emp.base_salary == 60000
+            
             print("      -> Успешно.")
         except AssertionError:
-            print("      -> ОШИБКА: Данные не обновились корректно.")
+            print("      -> ОШИБКА: Данные объекта не соответствуют ожидаемым.")
         except ValueError as e:
-            print(f"      -> ОШИБКА: {e}")
+            print(f"      -> ОШИБКА ВАЛИДАЦИИ: {e}")
 
     @staticmethod
     def test_validation_errors():
-        print("   [1.2] Тест валидации (Negative Tests)...")
+        """Проверяет реакцию системы на некорректные данные (Negative Testing)."""
+        print("   [1.2] Тест обработки ошибок валидации...")
         errors_caught = 0
         expected_errors = 3
 
-        # Кейс 1: Невалидный ID
+        # Сценарий 1: Отрицательный ID
         try:
             Employee(-1, "Name", "Dept", 100)
         except ValueError:
             errors_caught += 1
 
-        # Кейс 2: Пустое имя
+        # Сценарий 2: Пустое имя
         try:
             Employee(1, "", "Dept", 100)
         except ValueError:
             errors_caught += 1
 
-        # Кейс 3: Отрицательная зарплата
+        # Сценарий 3: Отрицательная зарплата
         try:
             Employee(1, "Name", "Dept", -5000)
         except ValueError:
             errors_caught += 1
 
         if errors_caught == expected_errors:
-            print(f"      -> Успешно перехвачено {errors_caught}/{expected_errors} ошибок.")
+            print(f"      -> Успешно перехвачено {errors_caught}/{expected_errors} некорректных операций.")
         else:
-            print(f"      -> ОШИБКА: Ожидалось {expected_errors} ошибок, перехвачено {errors_caught}.")
+            print(f"      -> ОШИБКА: Ожидалось {expected_errors} исключений, получено {errors_caught}.")

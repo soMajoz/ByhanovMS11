@@ -16,8 +16,7 @@
             "base_salary": 100000.0,
             "seniority": "senior",
             "tech_stack": [
-                "Python",
-                "Django"
+                "Python"
             ]
         }
     ]
