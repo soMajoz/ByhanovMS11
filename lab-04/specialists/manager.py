@@ -6,7 +6,6 @@ class Manager(AbstractEmployee):
     """
     
     def __init__(self, emp_id: int, name: str, department: str, base_salary: float, bonus: float):
-        # Инициализируем базовые поля через родителя
         super().__init__(emp_id, name, department, base_salary)
         self.bonus = bonus
 
@@ -28,3 +27,14 @@ class Manager(AbstractEmployee):
                 f"   -> Тип: Manager\n"
                 f"   -> Бонус: {self.bonus}\n"
                 f"   -> Итоговая выплата: {self.calculate_salary()} руб.")
+
+    def to_dict(self) -> dict:
+        """Сериализация данных менеджера."""
+        return {
+            "type": "manager",
+            "id": self.id,
+            "name": self.name,
+            "department": self.department,
+            "base_salary": self.base_salary,
+            "bonus": self.bonus
+        }

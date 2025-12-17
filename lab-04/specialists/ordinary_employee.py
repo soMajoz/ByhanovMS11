@@ -1,13 +1,17 @@
 from base.abstract_employee import AbstractEmployee
 
 class OrdinaryEmployee(AbstractEmployee):
-    """
-    Реализация штатного сотрудника без бонусов и надбавок.
-    """
     def calculate_salary(self) -> float:
         return self.base_salary
 
     def get_info(self) -> str:
-        return (f"{super().__str__()}\n"
-                f"   -> Тип: Штатный сотрудник\n"
-                f"   -> Итоговая выплата: {self.calculate_salary()} руб.")
+        return f"{super().__str__()} -> Тип: Штатный -> Итого: {self.calculate_salary()}"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": "employee",
+            "id": self.id,
+            "name": self.name,
+            "department": self.department,
+            "base_salary": self.base_salary
+        }

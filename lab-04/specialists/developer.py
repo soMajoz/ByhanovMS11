@@ -3,6 +3,7 @@ from base.abstract_employee import AbstractEmployee
 class Developer(AbstractEmployee):
     """
     Разработчик. Зарплата рассчитывается с учетом коэффициента уровня (Seniority).
+    Поддерживает итерацию по стеку технологий.
     """
     
     LEVEL_MULTIPLIERS = {
@@ -15,7 +16,6 @@ class Developer(AbstractEmployee):
                  seniority_level: str, tech_stack: list[str] = None):
         super().__init__(emp_id, name, department, base_salary)
         self.seniority_level = seniority_level
-        # Если список не передан, создаем пустой
         self.__tech_stack = tech_stack if tech_stack is not None else []
 
     @property
@@ -50,3 +50,22 @@ class Developer(AbstractEmployee):
                 f"   -> Тип: Developer ({self.seniority_level.title()})\n"
                 f"   -> Стек: [{stack_str}]\n"
                 f"   -> Итоговая выплата: {self.calculate_salary()} руб.")
+
+    def to_dict(self) -> dict:
+        """Сериализация данных разработчика."""
+        return {
+            "type": "developer",
+            "id": self.id,
+            "name": self.name,
+            "department": self.department,
+            "base_salary": self.base_salary,
+            "seniority": self.seniority_level, # Ключ совпадает с аргументом фабрики
+            "tech_stack": self.__tech_stack
+        }
+
+    def __iter__(self):
+        """
+        Реализация итератора. 
+        Позволяет перебирать стек технологий в цикле: 'for skill in developer:'.
+        """
+        return iter(self.__tech_stack)
