@@ -1,6 +1,10 @@
 from factory import EmployeeFactory
 from specialists.developer import Developer
 from specialists.salesperson import Salesperson
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 class TestPart2:
     """
