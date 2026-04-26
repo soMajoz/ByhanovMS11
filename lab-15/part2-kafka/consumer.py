@@ -41,7 +41,7 @@ class OrderStatsConsumer:
             group_id=self.group_id,
             auto_offset_reset="earliest",
             enable_auto_commit=True,
-            consumer_timeout_ms=3000,
+            consumer_timeout_ms=10000,
             value_deserializer=lambda value: json.loads(value.decode("utf-8")),
             key_deserializer=lambda key: key.decode("utf-8") if key else None,
         )
@@ -95,4 +95,3 @@ class OrderStatsConsumer:
 
 if __name__ == "__main__":
     OrderStatsConsumer().run(max_messages=15)
-

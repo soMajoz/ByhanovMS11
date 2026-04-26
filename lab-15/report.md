@@ -32,5 +32,7 @@ Data loaded into sales.db
 
 ## Верификация
 
-ETL-пайплайн запущен успешно локально: создан `sales.db`, `logs/etl.log` и PNG-графики в `report/graphs`. Python-код Kafka прошел `python -m compileall`. Kafka runtime-проверка заблокирована тем, что Docker Desktop daemon не запущен; команды для повторного запуска сохранены в `part2-kafka/verification/status.md`.
+ETL-пайплайн запущен успешно локально: создан `sales.db`, `logs/etl.log` и PNG-графики в `report/graphs`. Python-код Kafka прошел `python -m compileall`.
+
+После запуска Docker Desktop Kafka runtime-проверка выполнена: Zookeeper, Kafka и Kafka UI подняты через Docker Compose, producer отправил 15 заказов, основной consumer обработал 15 сообщений с общей выручкой `526000.0`, оконный consumer сохранил окно на 15 заказов. Результаты сохранены в `part2-kafka/verification/`, `data/orders_processed.json` и `data/windowed_stats.json`.
 

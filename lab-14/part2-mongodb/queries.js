@@ -13,10 +13,11 @@ db.orders.insertOne({
 });
 
 print("2. Read recent orders");
-db.orders.find({}, { _id: 0, order_id: 1, status: 1, "customer.name": 1, order_date: 1 })
+const recentOrders = db.orders
+  .find({}, { _id: 0, order_id: 1, status: 1, "customer.name": 1, order_date: 1 })
   .sort({ order_date: -1 })
-  .limit(5)
-  .forEach(printjson);
+  .limit(5);
+recentOrders.forEach(printjson);
 
 print("3. Update order status");
 db.orders.updateOne({ order_id: 1009 }, { $set: { status: "paid" } });
@@ -59,4 +60,3 @@ db.orders.aggregate([
   { $sort: { total_spent: -1 } },
   { $limit: 3 }
 ]).forEach(printjson);
-

@@ -11,7 +11,14 @@ python windowed_consumer.py
 
 Actual local environment status on 2026-04-26:
 
-- Python files passed `python -m compileall`.
-- Docker Desktop daemon was not running, so Kafka/Zookeeper/Kafka UI containers could not be started.
-- Kafka runtime verification should be repeated after Docker Desktop is running.
+- `docker compose up -d` started Zookeeper, Kafka, and Kafka UI.
+- `python producer.py` sent 15 orders to topic `orders`.
+- `consumer.py` processed 15 messages with total revenue `526000.0`.
+- `windowed_consumer.py` saved one verification window with 15 orders and revenue `526000.0`.
+- Outputs were saved to:
+  - `kafka_producer_output.txt`
+  - `kafka_consumer_output.txt`
+  - `kafka_windowed_output.txt`
+  - `../data/orders_processed.json`
+  - `../data/windowed_stats.json`
 

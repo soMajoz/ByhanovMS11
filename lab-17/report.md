@@ -20,7 +20,16 @@ Compiled successfully
 Generating static pages (10/10)
 ```
 
-Docker build backend был запущен, но Docker Desktop daemon на машине не работает, поэтому сборка образа остановилась на подключении к Docker API.
+После запуска Docker Desktop backend image собран командой `docker build -t lab17-book-api .`. Контейнерный запуск проверен на порту `18000`, endpoint `/health` вернул:
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-04-26",
+  "environment": "development",
+  "database_configured": true
+}
+```
 
 ## Часть 2. CI/CD
 
@@ -36,5 +45,4 @@ Docker build backend был запущен, но Docker Desktop daemon на ма
 
 ## Верификация
 
-Backend прошел `python -m compileall .`. Frontend прошел `npm run build` вне sandbox после ошибки `spawn EPERM` внутри sandbox. Terraform CLI не установлен на локальной машине, поэтому `terraform validate` не запускался локально. Реальный деплой Vercel/Yandex Cloud требует заполненных GitHub Actions Secrets и локальных/облачных учетных данных.
-
+Backend прошел `python -m compileall .`, `docker build -t lab17-book-api .` и контейнерную проверку `/health`. Frontend прошел `npm run build`. Terraform CLI не установлен на локальной машине, поэтому `terraform validate` не запускался локально. Реальный деплой Vercel/Yandex Cloud требует заполненных GitHub Actions Secrets и локальных/облачных учетных данных.

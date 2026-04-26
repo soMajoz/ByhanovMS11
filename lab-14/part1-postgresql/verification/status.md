@@ -11,8 +11,11 @@ docker compose exec postgres psql -U lab_user -d shop_analytics -f /work/index_a
 
 Actual local environment status on 2026-04-26:
 
-- `docker compose up -d` was attempted.
-- Docker Desktop daemon was not running.
-- Error: `failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine`.
-- `psql` is not installed on the host, so direct host execution was unavailable.
+- `docker compose up -d` started `lab14_postgres`.
+- SQL files were copied into the container with `docker cp`.
+- `schema.sql`, `queries.sql`, and `index_analysis.sql` were executed with `psql`.
+- Outputs were saved to:
+  - `postgres_schema_output.txt`
+  - `postgres_queries_output.txt`
+  - `postgres_index_output.txt`
 

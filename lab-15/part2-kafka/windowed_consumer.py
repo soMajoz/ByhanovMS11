@@ -20,10 +20,17 @@ logger = logging.getLogger(__name__)
 
 
 class WindowedOrderConsumer:
-    def __init__(self, bootstrap_servers: str = "localhost:9092", topic: str = "orders", window_seconds: int = 30):
+    def __init__(
+        self,
+        bootstrap_servers: str = "localhost:9092",
+        topic: str = "orders",
+        window_seconds: int = 30,
+        group_id: str = "order_window_group",
+    ):
         self.bootstrap_servers = bootstrap_servers
         self.topic = topic
         self.window_seconds = window_seconds
+        self.group_id = group_id
         self.consumer: KafkaConsumer | None = None
         self.windows: list[dict] = []
 
@@ -31,10 +38,10 @@ class WindowedOrderConsumer:
         self.consumer = KafkaConsumer(
             self.topic,
             bootstrap_servers=self.bootstrap_servers,
-            group_id="order_window_group",
+            group_id=self.group_id,
             auto_offset_reset="earliest",
             enable_auto_commit=True,
-            consumer_timeout_ms=3000,
+            consumer_timeout_ms=10000,
             value_deserializer=lambda value: json.loads(value.decode("utf-8")),
         )
 
@@ -84,4 +91,3 @@ class WindowedOrderConsumer:
 
 if __name__ == "__main__":
     WindowedOrderConsumer().run()
-

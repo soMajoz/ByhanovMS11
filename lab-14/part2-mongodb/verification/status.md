@@ -12,7 +12,12 @@ docker compose exec mongodb mongosh /work/indexes.js
 
 Actual local environment status on 2026-04-26:
 
-- MongoDB JavaScript files passed syntax check with `node --check`.
-- Docker Desktop daemon was not running, so MongoDB container execution could not be started.
-- `mongosh` is not installed on the host.
+- `docker compose up -d` started `lab14_mongodb`.
+- JavaScript files were copied into the container with `docker cp`.
+- `init.js`, `queries.js`, `comparison.js`, and `indexes.js` were executed with `mongosh`.
+- Outputs were saved to:
+  - `mongodb_init_output.txt`
+  - `mongodb_queries_output.txt`
+  - `mongodb_comparison_output.txt`
+  - `mongodb_indexes_output.txt`
 
