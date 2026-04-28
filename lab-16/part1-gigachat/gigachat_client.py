@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -64,7 +65,7 @@ class GigaChatClient:
         self._access_token = response.json()["access_token"]
         return self._access_token
 
-    def chat(self, prompt: str, system_prompt: str = "Ты полезный ассистент разработчика.") -> str:
+    def chat(self, prompt: str, system_prompt: str = "You are a helpful software development assistant.") -> str:
         token = self.get_access_token()
         response = requests.post(
             self.config.chat_url,
@@ -84,7 +85,13 @@ class GigaChatClient:
         return response.json()["choices"][0]["message"]["content"]
 
     @staticmethod
-    def strip_markdown_code_block(text: str) -> str:
+    def strip_markdown_code_block(text: str, language: str | None = None) -> str:
+        if language:
+            pattern = rf"```{re.escape(language)}\s*(.*?)```"
+            match = re.search(pattern, text, flags=re.DOTALL | re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+
         lines = text.strip().splitlines()
         if lines and lines[0].startswith("```"):
             lines = lines[1:]
@@ -101,20 +108,24 @@ def run_generation(prompts: Iterable[tuple[str, Path]]) -> None:
     client = GigaChatClient()
     for prompt, target in prompts:
         answer = client.chat(prompt)
-        save_text(target, client.strip_markdown_code_block(answer))
+        language = "python" if target.suffix == ".py" else None
+        save_text(target, client.strip_markdown_code_block(answer, language=language))
 
 
 if __name__ == "__main__":
     prompts = [
         (
-            "Напиши на Python функции is_prime(n), fibonacci(n), normalize_phone(phone) с docstring и type hints.",
+            "Write only one Python code block with three functions and no prose: "
+            "is_prime(n: int) -> bool, fibonacci(n: int) -> list[int] returning the first n Fibonacci numbers, "
+            "and normalize_phone(phone: str) -> str returning a +7XXXXXXXXXX string. "
+            "For normalize_phone, remove all non-digits, drop a leading 7 or 8 when there are 11 digits, "
+            "then prefix the remaining 10 digits with +7. Add docstrings and type hints.",
             BASE_DIR / "generated_code.py",
         ),
         (
-            "Создай README на русском для проекта с функциями is_prime, fibonacci и normalize_phone.",
+            "Create a Russian README for a Python project with functions is_prime, fibonacci and normalize_phone.",
             BASE_DIR / "README_generated.md",
         ),
     ]
     run_generation(prompts)
     print(json.dumps({"generated": [str(path.name) for _, path in prompts]}, ensure_ascii=False))
-
