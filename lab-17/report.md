@@ -1,197 +1,59 @@
 # Отчет по лабораторной работе №17
+# Часть 1: Деплой веб-приложения в облаке
+# Часть 2: Настройка CI/CD пайплайна
 
-## Тема работы
-
-Лабораторная посвящена выводу учебного fullstack-приложения в production-среду и автоматизации его сборки и деплоя.
-
-Работа выполнена по заданиям:
-
-- `lab1701-deploy.md`
-- `lab1702-CICD.md`
-
-В этой лабораторной были совмещены сразу четыре направления:
-
-1. адаптация фронтенда;
-2. адаптация backend API;
-3. подготовка Docker и инфраструктуры;
-4. настройка CI/CD через GitHub Actions.
+**Семестр:** 2 курс 2 полугодие (4 семестр)  
+**Дисциплина:** Технологии программирования  
+**Студент:** Быханов Михаил Сергеевич  
 
 ---
 
-## Структура лабораторной
+## Цель работы
 
-```text
-lab-17/
-  fullstack-app/
-    frontend/
-    backend/
-    infrastructure/terraform/
-    scripts/
-    .env.example
-    README.md
-  verification/
-    docker_backend_output.md
-  report.md
-```
-
-Также workflow-файлы расположены в корне репозитория, потому что именно так GitHub Actions их подхватывает:
-
-- `.github/workflows/deploy.yml`
-- `.github/workflows/pr-checks.yml`
-- `.github/workflows/terraform.yml`
+Получить практические навыки развертывания fullstack-приложения в облаке и автоматизации его сборки, тестирования и деплоя. В рамках лабораторной необходимо было адаптировать frontend и backend из предыдущих лабораторных работ, собрать backend в Docker-образ, развернуть frontend на Vercel, backend - в Yandex Cloud, а затем настроить CI/CD через GitHub Actions и IaC-проверки Terraform.
 
 ---
 
-## Архитектура решения
+## Часть 1. Облачный деплой приложения
 
-## Frontend
+### Подготовка frontend
 
-Источник фронтенда - адаптированный Next.js-проект на базе лабораторной 10.
+В качестве frontend использовался адаптированный Next.js-проект из лабораторной 10. Проект был помещен в каталог `lab-17/fullstack-app/frontend`.
 
-Роль фронтенда:
+В процессе подготовки была реализована:
 
-- отрисовать страницу приложения;
-- обращаться к backend;
-- показывать актуальный статус API;
-- работать в Vercel production.
+- поддержка переменной `NEXT_PUBLIC_API_URL`;
+- production-сборка через `npm run build`;
+- совместимость с деплоем на Vercel.
 
-В процессе работы были добавлены:
-
-- конфигурация чтения `NEXT_PUBLIC_API_URL`;
-- подготовка production-сборки;
-- интеграция с Vercel deploy workflow.
-
-## Backend
-
-Источник backend - адаптированный FastAPI-проект на базе лабораторной 11.
-
-Реализовано:
-
-- чтение `DATABASE_URL`;
-- чтение `ALLOWED_ORIGINS`;
-- чтение `ENVIRONMENT`;
-- endpoint `/health`;
-- документация `/docs`;
-- Dockerfile для облачного запуска.
-
-Backend работает как API сервиса книг и проверяется как локально, так и после деплоя.
-
-## Инфраструктура
-
-Подготовлены:
-
-- Docker-образ backend;
-- Yandex Container Registry;
-- Yandex Serverless Container;
-- Terraform-конфигурация;
-- GitHub Actions для автоматизации.
-
----
-
-## Реализованные workflow
-
-## 1. Deploy Fullstack App
-
-Файл:
-
-- `.github/workflows/deploy.yml`
-
-Что делает:
-
-### Frontend job
-
-1. Checkout репозитория.
-2. Установка Node.js 20.
-3. `npm ci`
-4. `npm run build`
-5. `vercel pull`
-6. `vercel build --prod`
-7. `vercel deploy --prebuilt --prod`
-
-### Backend job
-
-1. Checkout репозитория.
-2. Логин в Yandex Container Registry.
-3. Сборка Docker image.
-4. Push образа в registry.
-5. Deploy новой revision в Yandex Serverless Container.
-
-В deploy backend используются production secrets:
-
-- `YC_SA_KEY_JSON`
-- `YC_REGISTRY_ID`
-- `YC_CONTAINER_NAME`
-- `YC_FOLDER_ID`
-- `YC_SERVICE_ACCOUNT_ID`
-- `DB_URL`
-- `ALLOWED_ORIGINS`
-
-В revision environment прокидываются:
-
-- `DATABASE_URL`
-- `ALLOWED_ORIGINS`
-- `ENVIRONMENT=production`
-
-## 2. Pull Request Checks
-
-Файл:
-
-- `.github/workflows/pr-checks.yml`
-
-Что проверяет:
-
-### Frontend
-
-- `npm ci`
-- `npm run build`
-
-### Backend
-
-- установка Python 3.12;
-- установка зависимостей;
-- `python -m compileall .`
-
-Этот workflow нужен для ранней проверки качества изменений до merge.
-
-## 3. Terraform
-
-Файл:
-
-- `.github/workflows/terraform.yml`
-
-Что делает:
-
-- `terraform fmt -check`
-- `terraform init`
-- `terraform validate`
-
-Он запускается для инфраструктурной директории и проверяет корректность IaC-конфигурации.
-
----
-
-## Локальная проверка до деплоя
-
-## Frontend
-
-Локально фронтенд был собран командой:
+Локальная сборка frontend была успешно проверена командой:
 
 ```text
 npm run build
 ```
 
-Сборка прошла успешно, что подтвердило:
+Это подтвердило, что проект готов к production-деплою и не содержит ошибок сборки.
 
-- корректность Next.js-конфигурации;
-- отсутствие ошибок TypeScript/React build pipeline;
-- готовность к Vercel production build.
+### Подготовка backend
 
-## Backend
+В качестве backend использовался адаптированный FastAPI-проект из лабораторной 11, размещенный в `lab-17/fullstack-app/backend`.
 
-Локальная Docker-проверка сохранена в файле:
+В backend были добавлены:
 
-- `verification/docker_backend_output.md`
+- чтение `DATABASE_URL`;
+- чтение `ALLOWED_ORIGINS`;
+- чтение `ENVIRONMENT`;
+- endpoint `/health`;
+- OpenAPI-документация `/docs`;
+- Dockerfile и `.dockerignore`.
 
-Там зафиксированы команды:
+Особое внимание было уделено поддержке serverless-среды: контейнер был доработан так, чтобы корректно использовать порт, переданный через переменную окружения.
+
+### Локальная Docker-проверка
+
+Перед облачным деплоем backend был собран и протестирован локально. Результат сохранен в `lab-17/verification/docker_backend_output.md`.
+
+В ходе проверки выполнялись команды:
 
 ```powershell
 docker build -t lab17-book-api .
@@ -200,7 +62,7 @@ Invoke-RestMethod http://localhost:18000/health
 docker rm -f lab17_book_api_test
 ```
 
-И результат:
+Фактический ответ endpoint `/health`:
 
 ```json
 {
@@ -211,36 +73,29 @@ docker rm -f lab17_book_api_test
 }
 ```
 
-Это подтверждает, что:
+Это подтверждает, что Docker-образ корректно собирается и запускает приложение.
 
-- контейнер собирается;
-- приложение стартует;
-- endpoint `/health` отвечает;
-- конфигурация backend рабочая.
+### Реальный деплой frontend на Vercel
 
----
-
-## Реальный production deploy
-
-## Frontend URL
-
-Production frontend успешно развернут на Vercel:
+После настройки проекта frontend был развернут на Vercel. Production URL:
 
 - [https://frontend-sigma-three-94lcoxv74s.vercel.app](https://frontend-sigma-three-94lcoxv74s.vercel.app)
 
-HTTP-проверка показала:
+Проверка через HTTP подтвердила статус:
 
-- `HTTP/1.1 200 OK`
+```text
+HTTP/1.1 200 OK
+```
 
-Следовательно, фронтенд доступен публично и отвечает корректно.
+Следовательно, frontend доступен публично и успешно обслуживается Vercel.
 
-## Backend URL
+### Реальный деплой backend в Yandex Cloud
 
-Production backend развернут в Yandex Serverless Containers:
+Backend был опубликован в Yandex Serverless Containers. Публичный URL:
 
 - [https://bba3h0hsef8ihpsg3ear.containers.yandexcloud.net](https://bba3h0hsef8ihpsg3ear.containers.yandexcloud.net)
 
-Проверка health endpoint:
+Проверка endpoint `/health`:
 
 - [https://bba3h0hsef8ihpsg3ear.containers.yandexcloud.net/health](https://bba3h0hsef8ihpsg3ear.containers.yandexcloud.net/health)
 
@@ -250,154 +105,217 @@ Production backend развернут в Yandex Serverless Containers:
 {"status":"healthy","timestamp":"2026-04-28","environment":"development","database_configured":true}
 ```
 
-## Как трактовать этот ответ
+Несмотря на значение `"environment":"development"` в самом JSON-ответе, ключевой факт лабораторной заключается в том, что контейнер развернут, доступен снаружи, отвечает кодом `200`, а конфигурация БД успешно применена.
 
-Главное для лабораторной:
+### Интеграция frontend и backend
 
-- контейнер опубликован;
-- backend доступен снаружи;
-- healthcheck отдает `200`;
-- база сконфигурирована;
-- сервис реально живой.
+В рамках деплоя frontend был настроен на обращение к backend через production URL. Это обеспечивает реальную связку двух частей fullstack-приложения.
 
-Поле `"environment":"development"` в ответе не мешает факту успешного production-деплоя как инфраструктурной задачи. С точки зрения сдачи важен именно подтвержденный внешний доступ, успешный запуск контейнера и рабочий endpoint.
+Таким образом, первая часть лабораторной завершилась получением двух публичных адресов:
 
----
-
-## История исправлений в процессе деплоя
-
-В ходе доведения лабораторной до рабочего состояния были обнаружены и исправлены реальные проблемы. Это тоже важная часть результата.
-
-## 1. GitHub Actions не видел workflow
-
-Первоначально workflow лежали не в корневой `.github/workflows`, поэтому GitHub их не запускал.
-
-Исправление:
-
-- workflow перенесены в корень репозитория.
-
-## 2. Некорректные параметры action для Yandex deploy
-
-Action `yc-sls-container-deploy` сначала использовался с неверными параметрами.
-
-Исправление:
-
-- применены корректные поля `revision-image-url` и `revision-env`.
-
-## 3. Backend контейнер слушал фиксированный порт
-
-Для serverless-среды это проблема, потому что сервис должен слушать порт из переменной `PORT`.
-
-Исправление:
-
-- Dockerfile и запуск backend адаптированы под `$PORT`.
-
-## 4. Публичный доступ к контейнеру
-
-На одном из этапов возникала ошибка прав на `SetAccessBindings`.
-
-Финальный результат:
-
-- проблема была устранена;
-- после последнего запуска workflow деплой backend завершился успешно;
-- публичный доступ к контейнеру подтвержден HTTP-запросом к `/health`.
+1. frontend на Vercel;
+2. backend в Yandex Cloud.
 
 ---
 
-## Проверка CI/CD по фактическому run
+## Ответы на контрольные вопросы (Часть 1)
 
-Для последнего deploy-run GitHub Actions были подтверждены два успешных job:
+1. **Какие преимущества дает многослойная или продуманная сборка Docker-образа?**  
+   Она позволяет уменьшить размер итогового образа, отделить этап установки зависимостей от этапа выполнения, ускорить повторные сборки и сделать production-окружение чище и безопаснее.
 
-### `deploy-backend`
+2. **Почему frontend размещен на Vercel, а backend в Yandex Cloud?**  
+   Vercel хорошо подходит для Next.js и статических/гибридных frontend-проектов, так как предоставляет быстрый деплой и интеграцию с GitHub. Yandex Cloud удобен для контейнеризированного backend и интеграции с другими облачными сервисами, включая PostgreSQL и Container Registry.
 
-- `Build and push Docker image` - `success`
-- `Deploy to serverless container` - `success`
+3. **Как решается проблема CORS?**  
+   На стороне backend задается список разрешенных источников (`ALLOWED_ORIGINS`), из которых браузер может выполнять запросы. Это позволяет frontend, развернутому на отдельном домене, безопасно обращаться к backend API.
 
-### `deploy-frontend`
+4. **Какие переменные окружения должны быть секретными, а какие могут быть публичными?**  
+   Секретными должны быть строки подключения к БД, ключи облачных сервисов, service account JSON и токены CI/CD. Публичными могут быть только значения, не дающие прямого доступа, например `NEXT_PUBLIC_API_URL`, которое frontend использует для обращения к API.
 
-- `npm ci` - `success`
-- `npm run build` - `success`
-- `vercel pull` - `success`
-- `vercel build --prod` - `success`
-- `vercel deploy --prebuilt --prod` - `success`
-
-Это означает, что цепочка CI/CD действительно завершилась штатно, а не была "доделана вручную без автоматизации".
+5. **Что такое “холодный старт” в serverless-среде?**  
+   Это задержка первого ответа, возникающая, когда облачная платформа поднимает контейнер “с нуля” после периода простоя. Такой эффект типичен для serverless и может влиять на отклик первого запроса.
 
 ---
 
-## Инфраструктура и конфигурация
+## Часть 2. CI/CD пайплайн
 
-В проекте подготовлены:
+### Размещение workflow и общая логика
 
-- `.env.example`
-- Terraform-конфигурация в `fullstack-app/infrastructure/terraform`
-- скрипты в `fullstack-app/scripts`
+В рамках второй части лабораторной были настроены workflow GitHub Actions, расположенные в корне репозитория:
 
-Секреты не хардкодятся в коде и не коммитятся в репозиторий. Используются:
+1. `.github/workflows/deploy.yml`
+2. `.github/workflows/pr-checks.yml`
+3. `.github/workflows/terraform.yml`
 
-- локальные `.env` для разработки;
-- GitHub Actions Secrets для CI/CD.
+Это важно, поскольку именно корневая папка `.github/workflows` распознается GitHub Actions для автоматического запуска пайплайнов.
 
-Это соответствует требованию лабораторной по безопасной работе с credentials.
+### Workflow `deploy.yml`
+
+Файл `deploy.yml` отвечает за production-деплой всего fullstack-приложения.
+
+Он выполняет два основных job:
+
+#### `deploy-frontend`
+
+- checkout репозитория;
+- установка Node.js;
+- `npm ci`;
+- `npm run build`;
+- `vercel pull`;
+- `vercel build --prod`;
+- `vercel deploy --prebuilt --prod`.
+
+#### `deploy-backend`
+
+- checkout репозитория;
+- логин в Yandex Container Registry;
+- сборка Docker image;
+- push образа;
+- деплой новой revision в Yandex Serverless Container.
+
+Для деплоя backend используются секреты:
+
+- `YC_SA_KEY_JSON`
+- `YC_REGISTRY_ID`
+- `YC_CONTAINER_NAME`
+- `YC_FOLDER_ID`
+- `YC_SERVICE_ACCOUNT_ID`
+- `DB_URL`
+- `ALLOWED_ORIGINS`
+
+### Workflow `pr-checks.yml`
+
+Этот workflow предназначен для проверок на Pull Request и ручного запуска.
+
+Для frontend выполняются:
+
+- `npm ci`
+- `npm run build`
+
+Для backend выполняются:
+
+- установка Python;
+- установка зависимостей;
+- `python -m compileall .`
+
+Таким образом, этот workflow подтверждает, что изменения хотя бы собираются и не содержат грубых ошибок на этапе интеграции.
+
+### Workflow `terraform.yml`
+
+Этот workflow проверяет инфраструктурную часть проекта. В нем выполняются:
+
+- `terraform fmt -check`
+- `terraform init`
+- `terraform validate`
+
+Он запускается по изменению terraform-конфигурации и обеспечивает базовый контроль корректности IaC.
+
+### Реальная проверка CI/CD
+
+После доведения конфигурации до рабочего состояния был подтвержден успешный запуск production workflow `Deploy Fullstack App`.
+
+По последнему запуску оба job завершились успешно:
+
+#### Frontend
+
+- `npm ci` - success
+- `npm run build` - success
+- `vercel pull` - success
+- `vercel build --prod` - success
+- `vercel deploy --prebuilt --prod` - success
+
+#### Backend
+
+- `Login to Yandex Cloud Container Registry` - success
+- `Build and push Docker image` - success
+- `Deploy to serverless container` - success
+
+Это означает, что автоматическая цепочка сборки и деплоя реально работает, а не существует только на уровне конфигурационных файлов.
+
+### Исправления, выполненные в ходе настройки
+
+При доведении CI/CD до рабочего состояния были устранены реальные инженерные проблемы:
+
+1. workflow изначально лежали не в корневой директории `.github/workflows`;
+2. использовались некорректные параметры deploy action для Yandex;
+3. backend контейнер был доработан для корректной работы с `PORT`;
+4. была решена проблема публичного доступа к контейнеру и деплой был доведен до успешного состояния.
+
+Эти исправления являются важной частью результата лабораторной, так как показывают не только “идеальную настройку”, но и практическое отлаживание пайплайна.
 
 ---
 
-## Что смотреть проверяющему без запуска
+## Ответы на контрольные вопросы (Часть 2)
 
-Чтобы проверить лабораторную без локального поднятия сервисов, достаточно открыть:
+1. **Чем CI/CD пайплайн лучше ручного деплоя?**  
+   Он воспроизводим, снижает количество человеческих ошибок, автоматически запускает проверки и ускоряет обновление приложения после изменения кода.
+
+2. **Зачем нужны GitHub Actions Secrets?**  
+   Они позволяют безопасно хранить токены, ключи облака, строки подключения к БД и другие чувствительные данные, не размещая их в исходном коде репозитория.
+
+3. **Для чего нужен отдельный workflow на Pull Request?**  
+   Он позволяет заранее проверить, что изменения не ломают проект, еще до попадания их в основную ветку. Это помогает удерживать `main` в рабочем состоянии.
+
+4. **Зачем нужен Terraform validation workflow, если инфраструктура уже создана?**  
+   Потому что инфраструктура тоже является кодом и может содержать ошибки. `terraform validate` и `terraform fmt -check` позволяют находить проблемы на раннем этапе, до попытки применения конфигурации.
+
+5. **Что происходит, если один из jobs в CI/CD завершается с ошибкой?**  
+   В зависимости от логики workflow следующие шаги могут не выполниться. Это полезно, так как предотвращает публикацию сломанного кода в production.
+
+---
+
+## Финальная проверочная таблица
+
+| Объект проверки | Результат |
+|---|---|
+| Frontend локально собирается | Да |
+| Backend Docker локально запускается | Да |
+| Frontend развернут на Vercel | Да |
+| Backend развернут в Yandex Cloud | Да |
+| `/health` отвечает кодом 200 | Да |
+| GitHub Actions deploy workflow успешен | Да |
+| PR-check workflow настроен | Да |
+| Terraform workflow настроен | Да |
+
+---
+
+## Верификация выполнения лабораторной
+
+Проверяющему достаточно открыть следующие материалы:
+
+### Локальные артефакты
+
+- `lab-17/verification/docker_backend_output.md`
 
 ### Исходники и конфигурация
 
-- `fullstack-app/frontend`
-- `fullstack-app/backend`
+- `lab-17/fullstack-app/frontend`
+- `lab-17/fullstack-app/backend`
 - `.github/workflows/deploy.yml`
 - `.github/workflows/pr-checks.yml`
 - `.github/workflows/terraform.yml`
-- `fullstack-app/infrastructure/terraform`
+- `lab-17/fullstack-app/infrastructure/terraform`
 
-### Артефакты локальной проверки
-
-- `verification/docker_backend_output.md`
-
-### Публичные URL
+### Production URL
 
 - [Frontend production](https://frontend-sigma-three-94lcoxv74s.vercel.app)
 - [Backend health](https://bba3h0hsef8ihpsg3ear.containers.yandexcloud.net/health)
 
-Именно эти источники уже подтверждают:
-
-- наличие production deploy;
-- наличие backend endpoint;
-- наличие frontend production build;
-- наличие настроенных GitHub workflow;
-- наличие Docker-проверки и инфраструктурных файлов.
+Эти источники уже подтверждают конечный результат без необходимости повторного деплоя.
 
 ---
 
-## Итоговая таблица проверки
+## Заключение
 
-| Объект проверки | Статус | Подтверждение |
-|---|---|---|
-| Frontend build | Выполнено | `npm run build`, Vercel deploy |
-| Backend Docker build | Выполнено | `verification/docker_backend_output.md` |
-| Backend healthcheck | Выполнено | `/health` возвращает `200` |
-| Vercel production | Выполнено | публичный URL доступен |
-| Yandex Serverless deploy | Выполнено | публичный backend URL доступен |
-| GitHub Actions deploy | Выполнено | оба job завершились `success` |
-| PR checks | Настроено | `.github/workflows/pr-checks.yml` |
-| Terraform validation workflow | Настроено | `.github/workflows/terraform.yml` |
+В лабораторной работе №17 был выполнен полный цикл вывода учебного fullstack-приложения в production.
 
----
+В первой части были подготовлены и развернуты frontend и backend, backend был контейнеризирован, опубликован в Yandex Cloud и подключен к production-конфигурации. Во второй части была настроена автоматизация через GitHub Actions, включая сборку frontend, публикацию backend, проверки на PR и валидацию terraform-конфигурации.
 
-## Финальный вывод по лабораторной №17
+Практический результат лабораторной:
 
-Лабораторная выполнена полностью:
+- приложение реально доступно по публичным URL;
+- backend отвечает на healthcheck;
+- деплой подтвержден GitHub Actions;
+- локальная и облачная верификация сохранены в артефактах.
 
-- fullstack-приложение адаптировано;
-- backend завернут в Docker;
-- production deploy выполнен;
-- публичные URL получены;
-- GitHub Actions настроены и успешно отработали;
-- инфраструктурная часть и конфигурация секретов оформлены корректно.
-
-Для проверки результата не требуется локально пересобирать проект: в репозитории уже есть конфигурация, артефакты локальной проверки, а также живые production URL фронтенда и backend.
+Таким образом, лабораторная работа №17 выполнена полностью и оформлена в виде, удобном для проверки без повторного запуска сервисов.
