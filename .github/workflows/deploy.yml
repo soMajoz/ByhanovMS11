@@ -56,7 +56,6 @@ jobs:
           yc-sa-json-credentials: ${{ secrets.YC_SA_KEY_JSON }}
           container-name: ${{ secrets.YC_CONTAINER_NAME }}
           folder-id: ${{ secrets.YC_FOLDER_ID }}
-          public: true
           revision-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
           revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/book-api:${{ github.sha }}
           revision-env: DATABASE_URL=${{ secrets.DB_URL }},ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }},ENVIRONMENT=production
